@@ -1,17 +1,15 @@
-
-import LayoutWrapper from './layout/index.jsx'
-import { router } from './router/index.jsx'
-import Routers from './Routers.jsx'
-import { BrowserRouter, RouterProvider } from 'react-router'
+import React from 'react';
+import { Provider } from 'react-redux';
+import { RouterProvider } from 'react-router';
+import store from './store/index';
+import { router } from './router';
 
 function App() {
-
-  return (
-    <>
-      <RouterProvider router={router} />
-      
-    </>
-  )
+    return (
+        <Provider store={store}>
+            <RouterProvider router={router} />
+        </Provider>
+    );
 }
 
-export default App
+export default App;

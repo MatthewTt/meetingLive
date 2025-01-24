@@ -1,24 +1,56 @@
-
 import { Navigate } from "react-router";
 import LayoutWrapper from "../layout";
-import Home from "../pages/Home";
+import Dashboard from "../pages/admin/Home";
 import Login from "../pages/Login";
-
+import Users from "../pages/Users";
+import Meeting from "../pages/admin/Meeting";
+import Live from "../pages/admin/Live";
+import ClientHome from "../pages/client/Home";
+import LiveDetail from "../pages/client/Live";
+import {Outlet} from "react-router";
 export const routes = [
     {
-        path: '/',
+        path: '/admin',
         element: <LayoutWrapper />,
         children: [
             {
-                path: '/',
-                // 重定向
-                element: <Navigate to="/home" />
+                path: '',
+                element: <Navigate to="dashboard" />
             },
             {
-                path: '/home',
-                element: <Home/>
+                path: 'dashboard',
+                element: <Dashboard/>
             },
-            
+            {
+                path: 'users',
+                element: <Users />
+            },
+            {
+                path: 'meeting',
+                element: <Meeting />
+            },
+            {
+                path: 'liveRoom',
+                element: <Live />
+            }
+        ]
+    },
+    {
+        path: '/',
+        element: <div><Outlet /></div>,
+        children: [
+            {
+                path: '',
+                element: <Navigate to="home" />
+            },
+            {
+                path: 'home',
+                element: <ClientHome/>
+            },
+            {
+                path: 'live/:id',
+                element: <LiveDetail />
+            }
         ]
     },
     {

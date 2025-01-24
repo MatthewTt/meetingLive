@@ -32,8 +32,8 @@ const Home = () => {
     // 获取会议列表
     const fetchMeetings = async () => {
         try {
-            const response = await request.get('/meetings');
-            setMeetings(response.data.list.slice(0, 5)); // 只取前5条
+            const response = await request.get('/meeting');
+            setMeetings(response.data.slice(0, 5)); // 只取前5条
         } catch (error) {
             console.error('获取会议列表失败:', error);
         }
@@ -43,7 +43,7 @@ const Home = () => {
     const fetchLives = async () => {
         try {
             const response = await request.get('/live-manage');
-            setLives(response.data.list.slice(0, 6)); // 只取前6条
+            setLives(response.data.slice(0, 6)); // 只取前6条
         } catch (error) {
             console.error('获取直播列表失败:', error);
         }
@@ -79,16 +79,16 @@ const Home = () => {
                                 hoverable
                                 cover={
                                     <img
-                                        alt={meetings[0].title}
-                                        src={meetings[0].coverUrl || 'https://via.placeholder.com/600x400'}
+                                        alt={meetings[0].name}
+                                        src={meetings[0].cover}
                                         className={styles.featuredMeetingImage}
                                     />
                                 }
                                 onClick={() => navigate(`/meeting/${meetings[0].id}`)}
                             >
                                 <Card.Meta
-                                    title={meetings[0].title}
-                                    description={meetings[0].description}
+                                    title={meetings[0].name}
+                                    description={meetings[0].guestInfo}
                                 />
                             </Card>
                         )}
@@ -109,13 +109,13 @@ const Home = () => {
                                             <Image
                                                 width={120}
                                                 height={80}
-                                                src={item.coverUrl || 'https://via.placeholder.com/120x80'}
-                                                alt={item.title}
+                                                src={item.cover}
+                                                alt={item.name}
                                                 preview={false}
                                             />
                                         }
-                                        title={item.title}
-                                        description={item.description}
+                                        title={item.name}
+                                        description={item.guestInfo}
                                     />
                                 </List.Item>
                             )}
@@ -134,16 +134,16 @@ const Home = () => {
                                 hoverable
                                 cover={
                                     <img
-                                        alt={live.title}
-                                        src={live.coverUrl || 'https://via.placeholder.com/300x200'}
+                                        alt={live.meeting.name}
+                                        src={live.meeting.cover}
                                         className={styles.liveImage}
                                     />
                                 }
                                 onClick={() => navigate(`/live/${live.id}`)}
                             >
                                 <Card.Meta
-                                    title={live.title}
-                                    description={live.description}
+                                    title={live.meeting.name}
+                                    description={live.meeting.guestInfo}
                                 />
                             </Card>
                         </Col>

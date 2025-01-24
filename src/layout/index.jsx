@@ -1,49 +1,42 @@
-
-import { HomeOutlined, LoginOutlined } from "@ant-design/icons";
+import React from "react";
+import { HomeOutlined, LoginOutlined, UserOutlined, CalendarOutlined } from "@ant-design/icons";
 import { Menu, Breadcrumb } from "antd";
 import { Layout } from "antd"
-import { BrowserRouter, Link, Outlet, useMatch, useMatches } from "react-router";
-import Routers from "../Routers.jsx";
+import { Link, Outlet, useMatches } from "react-router";
 import { useCallback } from "react";
 import { useMemo } from "react";
 import { useState } from "react";
 import { useEffect } from "react";
+
 const { Header, Content, Footer, Sider } = Layout;
+
 const LayoutWrapper = () => {
     const [selectedKeys, setSelectedKeys] = useState([])
     const matches = useMatches()
 
     useEffect(() => {
         const [match] = matches || []
-        console.log(matches, 'matches')
         if (match) {
-            // 匹配当前路由
             const route = matches[matches.length - 1]
-        
             const handle = route?.handle
-            console.log(handle, 'handle');
-            
-            // 菜单高亮
             setSelectedKeys(route?.pathname)
-
         }
-        console.log(match, 'match')
     }, [matches])
+
     const menuItems = [
-        { name: '首页', path: '/home', icon: <HomeOutlined /> },
-        { name: '登录', path: '/login', icon: <LoginOutlined /> }
+        { name: '首页', path: '/admin/dashboard', icon: <HomeOutlined /> },
+        { name: '用户管理', path: '/admin/users', icon: <UserOutlined/> },
+        { name: '会议管理', path: '/admin/meeting', icon: <CalendarOutlined /> },
+        { name: '直播管理', path: '/admin/liveRoom', icon: <CalendarOutlined /> }
     ]
 
     const getMenuTitle = (menu) => {
         return (
             <Link to={menu.path}>{menu.name}</Link>
         )
-
     }
 
     const treeMenuData = useCallback((menus) => {
-        console.log(menus);
-        
         return menus.map((menu) => {
             return {
                 key: menu.path,
@@ -65,10 +58,6 @@ const LayoutWrapper = () => {
             </Sider>
             <Layout>
                 <Content style={{ margin: '16px' }}>
-                    <Breadcrumb style={{ margin: '16px 0' }}>
-                        <Breadcrumb.Item>User</Breadcrumb.Item>
-                        <Breadcrumb.Item>Bill</Breadcrumb.Item>
-                    </Breadcrumb>
                     <Outlet />
                 </Content>
             </Layout>

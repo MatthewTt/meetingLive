@@ -1,21 +1,41 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
+import { useDispatch } from 'react-redux';
 import { Form, Input, Button, Card, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { setCredentials } from '../../store/slices/userSlice';
+import request from '../../utils/request';
 import styles from './index.module.css';
 
 const Login = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const [form] = Form.useForm();
 
     const onFinish = async (values) => {
         try {
-            // TODO: Add your login logic here
-            console.log('Login attempt with:', values);
+            const response = await request.post('/auth', {
+                username: values.username,
+                password: values.password
+            });
+
+            // 使用Redux存储token和角色
+            dispatch(setCredentials({
+                token: response.data.accessToken,
+                role: response.data.type
+            }));
+            
             message.success('登录成功！');
-            navigate('/');
+            
+            // 根据用户角色跳转到不同页面
+            if (response.data.type === 1) {
+                navigate('/admin/dashboard');
+            } else {
+                navigate('/home');
+            }
         } catch (error) {
-            message.error('登录失败，请检查用户名和密码！');
+            // 错误已经在request拦截器中处理
+            console.error('Login error:', error);
         }
     };
 

@@ -1,0 +1,14 @@
+.uploader {
+    display: inline-block;
+}
+
+.uploadText {
+    margin-top: 8px;
+    color: #666;
+}
+
+.uploadedImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
