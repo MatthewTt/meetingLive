@@ -8,7 +8,30 @@ import styles from './index.module.css';
 const Live = () => {
     const { id } = useParams();
     const [liveInfo, setLiveInfo] = useState(null);
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState([
+        {
+            content: '欢迎来到直播间！',
+            user: {
+                name: '系统',
+                avatar: 'https://via.placeholder.com/32'
+            },
+            timestamp: new Date().toISOString()
+        },{
+            content: '大家好！',
+            user: {
+                name: '波波',
+                avatar: 'https://www.loliapi.com/acg/'
+            },
+            timestamp: new Date().toISOString()
+        },{
+            content: '开始直播啦！',
+            user: {
+                name: '不吃香',
+                avatar: 'https://www.loliapi.com/acg/pp'
+            },
+            timestamp: new Date().toISOString()
+        },
+    ]);
     const [inputMessage, setInputMessage] = useState('');
     const videoRef = useRef(null);
     const peerConnectionRef = useRef(null);
@@ -141,6 +164,7 @@ const Live = () => {
                         autoPlay
                         playsInline
                         controls
+                        src='https://stream7.iqilu.com/10339/upload_transcode/202002/09/20200209105011F0zPoYzHry.mp4'
                     />
                     <div className={styles.description}>
                         {liveInfo?.description}
@@ -150,7 +174,7 @@ const Live = () => {
 
             {/* 右侧聊天区域 */}
             <div className={styles.chatSection}>
-                <Card title="实时交流" className={styles.chatCard}>
+                <Card title="实时交流" className={styles.chatCard} styles={{height: 450}}>
                     <div className={styles.messageList}>
                         <List
                             dataSource={messages}

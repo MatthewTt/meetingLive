@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Carousel, Row, Col, Card, List, Image } from 'antd';
-import { useNavigate } from 'react-router';
+import {Carousel, Row, Col, Card, List, Image, Menu} from 'antd';
+import {NavLink, useNavigate} from 'react-router';
 import request from '../../../utils/request';
 import styles from './index.module.css';
 
@@ -56,8 +56,20 @@ const Home = () => {
         });
     }, []);
 
+
     return (
         <div className={styles.container}>
+            <div className={styles.menuContainer}>
+                <div>左边</div>
+                <div>
+                    <ul>
+                        <li>
+                            <NavLink to='/login'>登录</NavLink>
+                            </li>
+                        <li><NavLink to='/me'>个人中心</NavLink></li>
+                    </ul>
+                </div>
+            </div>
             {/* 轮播图 */}
             <Carousel autoplay className={styles.carousel}>
                 {carouselItems.map(item => (
@@ -142,8 +154,9 @@ const Home = () => {
                                 onClick={() => navigate(`/live/${live.id}`)}
                             >
                                 <Card.Meta
+                                    style={{ maxHeight: 250}}
                                     title={live.meeting.name}
-                                    description={live.meeting.guestInfo}
+                                    description={live.description}
                                 />
                             </Card>
                         </Col>

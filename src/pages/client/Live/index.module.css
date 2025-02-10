@@ -1,1 +1,21 @@
- 
+ .container {
+     display: flex;
+     padding: 30px 50px;
+     background: #f8f8f8;
+
+     .video {
+         display: block;
+         width: 600px;
+         margin: 0 auto;
+     }
+
+
+     .chatCard {
+         height: 100%;
+     }
+     .chatSection {
+         width: 500px;
+     }
+
+ }
+

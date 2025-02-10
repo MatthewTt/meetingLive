@@ -8,6 +8,7 @@ import Live from "../pages/admin/Live";
 import ClientHome from "../pages/client/Home";
 import LiveDetail from "../pages/client/Live";
 import {Outlet} from "react-router";
+import Me from "../pages/client/Me/index.jsx";
 export const routes = [
     {
         path: '/admin',
@@ -50,6 +51,10 @@ export const routes = [
             {
                 path: 'live/:id',
                 element: <LiveDetail />
+            },
+            {
+                path: 'me',
+                element: <Me />
             }
         ]
     },
