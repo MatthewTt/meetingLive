@@ -27,7 +27,9 @@ const LayoutWrapper = () => {
         { name: '首页', path: '/admin/dashboard', icon: <HomeOutlined /> },
         { name: '用户管理', path: '/admin/users', icon: <UserOutlined/> },
         { name: '会议管理', path: '/admin/meeting', icon: <CalendarOutlined /> },
-        { name: '直播管理', path: '/admin/liveRoom', icon: <CalendarOutlined /> }
+        { name: '直播管理', path: '/admin/liveRoom', icon: <CalendarOutlined /> },
+        { name: '嘉宾管理', path: '/admin/guest', icon: <CalendarOutlined /> },
+        { name: '报名管理', path: '/admin/signInfo', icon: <CalendarOutlined /> }
     ]
 
     const getMenuTitle = (menu) => {

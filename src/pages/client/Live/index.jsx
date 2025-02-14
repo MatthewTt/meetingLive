@@ -67,40 +67,63 @@ const Live = () => {
                 const socket = io('http://localhost:3009');
                 socketRef.current = socket;
 
-                // 处理ICE候选
-                peerConnection.onicecandidate = (event) => {
-                    if (event.candidate) {
-                        socket.emit('candidate', {
-                            candidate: event.candidate
-                        });
-                    }
-                };
 
-                // 处理远程流
-                peerConnection.ontrack = (event) => {
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = event.streams[0];
-                    }
-                };
+
 
                 // Socket.IO事件处理
                 socket.on('connect', () => {
                     console.log('Connected to signaling server');
-                    socket.emit('joinRoom', { roomId: liveInfo?.roomId });
                 });
 
                 socket.on('offer', async (data) => {
+                    console.log('收到offer', data.offer.sdp)
                     try {
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer));
+
+                        peerConnection.oniceconnectionstatechange = () => {
+                            console.log('ICE 连接状态:', peerConnection.iceConnectionState);
+                        };
+                        peerConnection.onicecandidate = async (event) => {
+                            if (event.candidate) {
+                                socket.emit('iceCandidate', { candidate: event.candidate, to: data.from });
+                            }
+                        };
+
+                        peerConnection.getStats(null).then((stats) => {
+                            stats.forEach((report) => {
+                                if (report.type === "inbound-rtp" && report.kind === "video") {
+                                    console.log("当前视频编码格式:", report.codecId);
+                                }
+                            });
+                        });
+
+                        // 处理远程流
+                        peerConnection.ontrack = (event) => {
+                            const stream = event.streams[0];
+
+                            if (videoRef.current) {
+                                videoRef.current.srcObject = event.streams[0];
+                            }
+
+                            videoRef.current.onerror = (e) => {
+                                console.error('视频播放错误:', e);
+                            };
+
+                        };
+
+                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
+                            .then(() => console.log('setRemoteDescription 成功'))
+                            .catch(err => console.error('setRemoteDescription 失败:', err));
                         const answer = await peerConnection.createAnswer();
                         await peerConnection.setLocalDescription(answer);
-                        socket.emit('answer', { answer });
+                        socket.emit('answer', { answer, to: data.from });
                     } catch (error) {
                         console.error('处理offer失败:', error);
                     }
                 });
 
-                socket.on('candidate', async (data) => {
+                socket.on('iceCandidate', async (data) => {
+                    console.log('[收到 ICE Candidate]:', data);
+
                     try {
                         await peerConnection.addIceCandidate(new RTCIceCandidate(data.candidate));
                     } catch (error) {
@@ -118,8 +141,10 @@ const Live = () => {
                 });
 
                 // 加入直播房间
-                socket.emit('join', { liveId: id });
-
+                socket.emit('joinRoom', {
+                    roomId: liveInfo.roomId,
+                    isBroadcaster: false,
+                });
                 return () => {
                     socket.disconnect();
                     peerConnection.close();
@@ -130,7 +155,7 @@ const Live = () => {
             }
         };
 
-        initConnection();
+        liveInfo?.roomId && initConnection();
     }, [liveInfo?.roomId]);
 
     // 发送聊天消息
@@ -164,7 +189,7 @@ const Live = () => {
                         autoPlay
                         playsInline
                         controls
-                        src='https://stream7.iqilu.com/10339/upload_transcode/202002/09/20200209105011F0zPoYzHry.mp4'
+                        muted
                     />
                     <div className={styles.description}>
                         {liveInfo?.description}

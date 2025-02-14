@@ -9,6 +9,9 @@ import ClientHome from "../pages/client/Home";
 import LiveDetail from "../pages/client/Live";
 import {Outlet} from "react-router";
 import Me from "../pages/client/Me/index.jsx";
+import Zhubo from "../pages/client/Live/Zhubo.jsx";
+import Guest from "../pages/admin/Guest/index.jsx";
+import SignInfo from "../pages/admin/signInfo/index.jsx";
 export const routes = [
     {
         path: '/admin',
@@ -33,6 +36,14 @@ export const routes = [
             {
                 path: 'liveRoom',
                 element: <Live />
+            },
+            {
+                path: 'guest',
+                element: <Guest />
+            },
+            {
+                path: 'signInfo',
+                element: <SignInfo />
             }
         ]
     },
@@ -53,8 +64,16 @@ export const routes = [
                 element: <LiveDetail />
             },
             {
+                path: 'live/:id/:token',
+                element: <Zhubo />
+            },
+            {
                 path: 'me',
                 element: <Me />
+            },
+            {
+                path: 'upLive',
+                element: <Zhubo />
             }
         ]
     },

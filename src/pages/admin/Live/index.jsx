@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Button, Space, message, Popconfirm } from 'antd';
+import {Table, Button, Space, message, Popconfirm, Tooltip} from 'antd';
 import request from '../../../utils/request';
 import LiveForm from './components/LiveForm';
 import styles from './index.module.css';
 import dayjs from 'dayjs';
+import {CopyOutlined} from "@ant-design/icons";
 
 const Live = () => {
     const [lives, setLives] = useState([]);
@@ -76,10 +77,20 @@ const Live = () => {
             render: (text) => text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'
         },
         {
-            title: '实际结束时间',
-            dataIndex: 'actualEndTime',
-            key: 'actualEndTime',
-            render: (text) => text ? dayjs(text).format('YYYY-MM-DD HH:mm:ss') : '-'
+            title: '主播URL',
+            dataIndex: 'broadcasterToken',
+            key: 'broadcasterToken',
+            render: (text, record) => {
+                return <Tooltip title={`${window.location.origin}/live/${record.id}/${text}`}>
+                    <CopyOutlined onClick={() => {
+                        navigator.clipboard.writeText(`${window.location.origin}/live/${record.id}/${text}`);
+                    }} />
+                </Tooltip>
+            }
+        },
+        {
+            title: '主播URL',
+            dataIndex: 'liveUrl'
         },
         {
             title: '操作',
