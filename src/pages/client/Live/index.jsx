@@ -47,10 +47,60 @@ const Live = () => {
                 message.error('获取直播信息失败');
             }
         };
+
         fetchLiveInfo();
     }, [id]);
 
-    // 初始化WebRTC和Socket.IO连接
+    useEffect(() => {
+        if (!liveInfo?.roomId) {
+            return;
+        }
+        socketRef.current = io('http://localhost:3009')
+
+        socketRef.current.on('connect', () => {
+            console.log('已连接到服务器');
+            socketRef.current.emit('joinRoom', {
+                roomId: liveInfo.roomId,
+                isBroadcaster: false,
+            });
+
+            socketRef.current.on('offer', async (data) => {
+                console.log('收到offer', data)
+                const {offer, from} = data
+                const pc = new RTCPeerConnection()
+                peerConnectionRef.current = pc
+
+                pc.onicecandidate = (event) => {
+                    socketRef.current.emit('iceCandidate', { candidate: event.candidate, to: from })
+                }
+
+                pc.ontrack = (event) => {
+                    if (videoRef.current) {
+                        videoRef.current.srcObject = event.streams[0];
+                    }
+                };
+                pc.setRemoteDescription(offer)
+                const answer = await pc.createAnswer();
+                console.log(`创建anser`, answer)
+                pc.setLocalDescription(answer)
+                socketRef.current.emit('answer', {answer, to: from})
+            })
+
+            socketRef.current.on('iceCandidate', (data) => {
+                console.log('收到candidate', data)
+                const {candidate, from} = data
+                peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate))
+                socketRef.current.emit('iceCandidate', { candidate, to: from })
+            })
+
+            socketRef.current.on('iceCandidate', (data) => {
+                console.log('收到candidate', data)
+                const {candidate, from} = data
+                peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(candidate))
+            })
+        })
+    }, [liveInfo?.roomId])
+   /* // 初始化WebRTC和Socket.IO连接
     useEffect(() => {
         const initConnection = async () => {
             try {
@@ -76,12 +126,14 @@ const Live = () => {
                 });
 
                 socket.on('offer', async (data) => {
-                    console.log('收到offer', data.offer.sdp)
+                    console.log('收到offer', data)
                     try {
-
-                        peerConnection.oniceconnectionstatechange = () => {
-                            console.log('ICE 连接状态:', peerConnection.iceConnectionState);
-                        };
+                        await peerConnection.setRemoteDescription(data.offer)
+                            .then(() => console.log('setRemoteDescription 成功'))
+                            .catch(err => console.error('setRemoteDescription 失败:', err));
+                        const answer = await peerConnection.createAnswer();
+                        await peerConnection.setLocalDescription(answer);
+                        socket.emit('answer', { answer, to: data.from });
                         peerConnection.onicecandidate = async (event) => {
                             if (event.candidate) {
                                 socket.emit('iceCandidate', { candidate: event.candidate, to: data.from });
@@ -98,24 +150,12 @@ const Live = () => {
 
                         // 处理远程流
                         peerConnection.ontrack = (event) => {
-                            const stream = event.streams[0];
-
                             if (videoRef.current) {
                                 videoRef.current.srcObject = event.streams[0];
                             }
-
-                            videoRef.current.onerror = (e) => {
-                                console.error('视频播放错误:', e);
-                            };
-
                         };
 
-                        await peerConnection.setRemoteDescription(new RTCSessionDescription(data.offer))
-                            .then(() => console.log('setRemoteDescription 成功'))
-                            .catch(err => console.error('setRemoteDescription 失败:', err));
-                        const answer = await peerConnection.createAnswer();
-                        await peerConnection.setLocalDescription(answer);
-                        socket.emit('answer', { answer, to: data.from });
+
                     } catch (error) {
                         console.error('处理offer失败:', error);
                     }
@@ -156,8 +196,7 @@ const Live = () => {
         };
 
         liveInfo?.roomId && initConnection();
-    }, [liveInfo?.roomId]);
-
+    }, [liveInfo?.roomId]);*/
     // 发送聊天消息
     const handleSendMessage = () => {
         if (!inputMessage.trim() || !socketRef.current) return;
@@ -179,7 +218,7 @@ const Live = () => {
         <div className={styles.container}>
             {/* 左侧直播区域 */}
             <div className={styles.videoSection}>
-                <Card 
+                <Card
                     title={liveInfo?.title || '直播'}
                     className={styles.videoCard}
                 >
@@ -227,8 +266,8 @@ const Live = () => {
                                 }
                             }}
                         />
-                        <Button 
-                            type="primary" 
+                        <Button
+                            type="primary"
                             onClick={handleSendMessage}
                             className={styles.sendButton}
                         >
@@ -241,4 +280,4 @@ const Live = () => {
     );
 };
 
-export default Live; 
+export default Live;

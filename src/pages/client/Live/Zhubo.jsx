@@ -8,6 +8,7 @@ const Zhubo = () => {
     const [isCapturing, setIsCapturing] = useState(false); // 控制屏幕捕获状态
     const videoRef = useRef(null); // 本地视频流的 ref
     const mediaStreamRef = useRef(null); // 存储媒体流对象
+    const RTC = useRef();
     const [liveInfo, setLiveInfo] = useState(null);
     const [userList, setUserList] = useState([])
 
@@ -30,8 +31,12 @@ const Zhubo = () => {
     const handleGetLocalStream = (cb) => {
         // 共享屏幕
 
-        navigator.mediaDevices.getDisplayMedia({
-            audio: true,
+        navigator.mediaDevices.getUserMedia({
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+            },
             video: true,
         }).then((stream) => {
             mediaStreamRef.current = stream;
@@ -56,11 +61,40 @@ const Zhubo = () => {
         });
 
         socket.on('userJoined', async({socketId}) => {
-            const pc = createPeerConnection(socketId, mediaStreamRef.current)
+            console.log('用户加入', socketId)
+            const pc = new RTCPeerConnection()
+            RTC.current = pc
+            mediaStreamRef.current.getTracks().forEach(track => {
+                pc.addTrack(track, mediaStreamRef.current)
+            })
             const offer = await pc.createOffer();
             await pc.setLocalDescription(offer)
+
+            pc.onicecandidate = (event) => {
+                console.log(`onicecandidate`, event)
+                if (event.candidate) {
+                    socket.emit('iceCandidate', {
+                        candidate: event.candidate,
+                        to: socketId
+                    })
+                }
+            }
+            console.log(`send offer`)
             socket.emit('offer', { offer, to: socketId })
         })
+
+        socket.on('answer', (data) => {
+            console.log('收到answer', data)
+            const {answer} = data
+            RTC.current.setRemoteDescription(new RTCSessionDescription(answer))
+        })
+
+
+        socket.on('iceCandidate', (data) => {
+            console.log('收到iceCandidate', data)
+            RTC.current.addIceCandidate(new RTCIceCandidate(data.candidate))
+        })
+
     }
 
     // 开始直播，打开媒体设备然后建立socket连接
@@ -68,37 +102,8 @@ const Zhubo = () => {
         handleGetLocalStream(() => {
             handleConnectIo()
         })
-
     }
 
-    const createPeerConnection = (socketId, stream) => {
-        const pc = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-        });
-
-        // 添加本地流
-        stream.getTracks().forEach(track => pc.addTrack(track, stream));
-
-        // 监听 ICE 候选
-        pc.onicecandidate = (event) => {
-            console.log('ICE主播触发');
-            if (event.candidate) {
-                socketInstance.current.emit('iceCandidate', { candidate: event.candidate, to: socketId });
-            }
-        };
-
-        // 监听连接状态
-        pc.onconnectionstatechange = () => {
-            if (pc.connectionState === 'disconnected') {
-                pc.close();
-                setUserList(prevUserList => prevUserList.filter(user => user.socketId !== socketId))
-            }
-        };
-
-        // peerConnections[socketId] = pc;
-        setUserList(prevUserList => [...prevUserList, { socketId, stream, pc }])
-        return pc;
-    };
 
     return (
         <div className="screen-capture-container">

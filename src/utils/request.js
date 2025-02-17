@@ -5,7 +5,7 @@ import { logout } from '../store/slices/userSlice';
 
 // 创建axios实例
 const request = axios.create({
-    baseURL: 'http://localhost:3009',
+    baseURL: 'http://192.168.0.101:3009',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ request.interceptors.response.use(
         if (response.config.responseType === 'blob') {
             return response;
         }
-        
+
         // 统一处理响应
         const res = response.data;
         console.log(res)
@@ -78,4 +78,4 @@ request.interceptors.response.use(
     }
 );
 
-export default request; 
+export default request;
