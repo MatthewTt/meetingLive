@@ -5,7 +5,7 @@ import { logout } from '../store/slices/userSlice';
 
 // 创建axios实例
 const request = axios.create({
-    baseURL: 'http://192.168.0.101:3009',
+    baseURL: 'http://localhost:3009',
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'

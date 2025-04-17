@@ -12,6 +12,7 @@ import Me from "../pages/client/Me/index.jsx";
 import Zhubo from "../pages/client/Live/Zhubo.jsx";
 import Guest from "../pages/admin/Guest/index.jsx";
 import SignInfo from "../pages/admin/signInfo/index.jsx";
+import Sign from "../pages/client/Sign/index.jsx";
 export const routes = [
     {
         path: '/admin',
@@ -74,6 +75,10 @@ export const routes = [
             {
                 path: 'upLive',
                 element: <Zhubo />
+            },
+            {
+                path: 'sign',
+                element: <Sign />
             }
         ]
     },

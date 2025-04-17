@@ -3,12 +3,14 @@ import {Carousel, Row, Col, Card, List, Image, Menu} from 'antd';
 import {NavLink, useNavigate} from 'react-router';
 import request from '../../../utils/request';
 import styles from './index.module.css';
+import {selectCurrentToken} from "../../../store/slices/userSlice.js";
 
 const Home = () => {
     const navigate = useNavigate();
     const [meetings, setMeetings] = useState([]);
     const [lives, setLives] = useState([]);
     const [loading, setLoading] = useState(false);
+
 
     // 轮播图数据，实际项目中应该从后端获取
     const carouselItems = [
@@ -63,10 +65,23 @@ const Home = () => {
                 <div>左边</div>
                 <div>
                     <ul>
-                        <li>
-                            <NavLink to='/login'>登录</NavLink>
-                            </li>
-                        <li><NavLink to='/me'>个人中心</NavLink></li>
+
+                        {
+                            !selectCurrentToken && (
+                                <li>
+                                    <NavLink to='/login'>登录</NavLink>
+                                </li>
+                            )
+                        }
+
+                        {
+                            selectCurrentToken && (
+                                <>
+                                    <li><NavLink to='/me'>个人中心</NavLink></li>
+                                    <li><NavLink to='/sign'>报名</NavLink></li>
+                                </>
+                            )
+                        }
                     </ul>
                 </div>
             </div>
